@@ -3,7 +3,7 @@ USE Minions
 CREATE TABLE People(
    Id INT PRIMARY KEY NOT NULL IDENTITY(1,1),
    [Name] NVARCHAR(200) NOT NULL,
-   Picture IMAGE,
+   Picture VARBINARY(MAX),
    Height DECIMAL(15,2),
    [Weight] DECIMAL(15,2),
    Gender CHAR(1) NOT NULL,
