@@ -36,8 +36,6 @@ INSERT INTO Cars(PlateNumber, CategoryId, Manufacturer) VALUES
 
 --SELECT * FROM Cars
 
---•	Employees (Id, FirstName, LastName, Title, Notes)
-
 CREATE TABLE Employees(
     Id INT PRIMARY KEY IDENTITY (1,1),
 	FirstName NVARCHAR(50) NOT NULL,
@@ -52,3 +50,45 @@ INSERT INTO Employees(FirstName, LastName) VALUES
 	('Marto', 'Martev')
 
 --SELECT * FROM Employees
+
+CREATE TABLE Customers(
+    Id INT PRIMARY KEY IDENTITY(1,1),
+	DriverLicenceNumber INT NOT NULL,
+	FullName NVARCHAR(200) NOT NULL,
+	[Address] NVARCHAR(100),
+	City NVARCHAR(50),
+	ZIPCode INT,
+	Notes NVARCHAR(MAX)
+)
+
+INSERT INTO Customers (DriverLicenceNumber, FullName) VALUES
+    (44, 'Pesho ivanov'),
+	(33, 'Ivan ivanov'),
+	(22, 'Georgi ivanov')
+
+--SELECT * FROM Customers
+
+CREATE TABLE RentalOrders(
+    Id INT PRIMARY KEY IDENTITY(1,1),
+	EmployeeId INT FOREIGN KEY REFERENCES Employees(Id) NOT NULL,
+	CustomerId INT FOREIGN KEY REFERENCES Customers(Id) NOT NULL,
+	CarId INT FOREIGN KEY REFERENCES Cars(Id) NOT NULL,
+	TankLevel INT,
+	KilometrageStart INT NOT NULL,
+	KilometrageEnd INT,
+	TotalKilometrage INT,
+	StartDate DATETIME,
+	EndDate DATETIME,
+	TotalDays INT,
+	RateApplied INT,
+	TaxRate INT,
+	OrderStatus NVARCHAR(50),
+	Notes NVARCHAR(MAX)
+)
+
+INSERT INTO RentalOrders (EmployeeId, CustomerId, CarId, KilometrageStart) VALUES
+    (1, 2, 3, 200),
+	(2, 3, 2, 2000),
+	(3, 1, 1, 20000)
+
+--SELECT * FROM RentalOrders
