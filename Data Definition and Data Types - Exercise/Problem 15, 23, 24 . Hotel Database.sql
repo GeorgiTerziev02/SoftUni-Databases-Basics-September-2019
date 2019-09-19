@@ -1,4 +1,4 @@
-CREATE DATABASE HOTEL
+CREATE DATABASE Hotel
 
 CREATE TABLE Employees(
     Id INT PRIMARY KEY IDENTITY(1,1),
@@ -121,3 +121,14 @@ INSERT INTO Occupancies (EmployeeId, AccountNumber, RoomNumber) VALUES
     (1, 55, 1),
 	(2, 44, 2),
 	(3, 33, 3)
+
+--Exercise 23 
+
+UPDATE Payments
+SET TaxRate-=0.03*TaxRate
+
+SELECT TaxRate FROM Payments
+
+--Exercise 24
+TRUNCATE TABLE Occupancies
+DELETE FROM Occupancies
