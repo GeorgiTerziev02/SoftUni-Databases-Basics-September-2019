@@ -40,3 +40,27 @@ SELECT ROUND(18.5679, 0)
 SELECT * FROM Products
 
 SELECT [Name], CEILING(CAST(CEILING(CAST(Quantity AS float)/BoxCapacity)/ PalletCapacity AS float)) AS Pallets FROM Products
+
+SELECT SIGN(200), SIGN(0), SIGN(-20)
+
+SELECT RAND()
+
+SELECT DATEPART(WEEK,'2019-09-23')
+
+
+USE SoftUni
+SELECT * FROM Projects
+ WHERE DATEPART(QUARTER, StartDate) = 3
+
+USE Orders
+
+SELECT 
+       ProductName,
+	   YEAR(OrderDate) AS [Year],
+	   MONTH(OrderDate) AS [Month],
+	   DAY(OrderDate) AS [Day],
+	   DATEPART(QUARTER, OrderDate) AS [Quarter]
+  FROM Orders
+
+SELECT 
+  DATEDIFF(SECOND, '2019-01-21T21:11:58', '2019-01-21T21:12:08')
