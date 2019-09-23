@@ -64,3 +64,16 @@ SELECT
 
 SELECT 
   DATEDIFF(SECOND, '2019-01-21T21:11:58', '2019-01-21T21:12:08')
+
+USE SoftUni
+  SELECT
+      CONCAT_WS(', ', LastName, FirstName) AS [Employee],
+	  DATEDIFF(year, HireDate, GETDATE()) AS [Years of service]
+    FROM Employees
+ORDER BY Employee
+
+SELECT DATENAME(WEEKDAY, GETDATE())
+
+SELECT HireDate,DATEADD(YEAR, 5, HireDate) 
+    AS [EXP] 
+  FROM Employees
