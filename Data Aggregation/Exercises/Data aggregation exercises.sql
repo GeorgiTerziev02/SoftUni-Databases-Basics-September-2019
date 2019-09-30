@@ -82,3 +82,72 @@ GROUP BY DepositGroup, IsDepositExpired
 ORDER BY DepositGroup DESC, IsDepositExpired ASC
 
 -- Exercise 12
+SELECT SUM([Difference]) AS [SumDifference] FROM (SELECT FirstName AS [Host Wizard],
+       DepositAmount AS [Host Wizard Deposit],
+	   LEAD(FirstName) OVER(ORDER BY Id) AS [Guest Wizard],
+	   LEAD(DepositAmount) OVER(ORDER BY Id) AS [Guest Wizard Deposit],
+	   DepositAmount - LEAD(DepositAmount) OVER(ORDER BY Id) AS [Difference]
+	   FROM WizzardDeposits) AS DiffTable
+	   
+
+SELECT SUM(k.[Difference])
+  FROM(
+SELECT w.DepositAmount - (SELECT wd.DepositAmount FROM WizzardDeposits AS wd WHERE wd.Id = w.Id + 1) AS [Difference]
+  FROM WizzardDeposits AS w ) 
+    AS k
+
+USE SoftUni
+
+-- Exercise 13
+  SELECT DepartmentID, SUM(Salary) AS [TotalSalary] 
+    FROM Employees
+GROUP BY DepartmentID
+ORDER BY DepartmentID
+
+-- Exercise 14
+  SELECT DepartmentID, MIN(Salary)
+    FROM Employees
+   WHERE DepartmentID IN (2, 5, 7) AND HireDate > '01/01/2000'
+GROUP BY DepartmentID
+
+-- Exercise 15
+SELECT * 
+  INTO [New employees Table]
+  FROM Employees
+ WHERE Salary > 30000
+DELETE FROM [New employees Table]
+ WHERE ManagerID = 42
+UPDATE [New employees Table]
+   SET Salary += 5000
+ WHERE DepartmentID = 1
+
+ SELECT DepartmentID, AVG(Salary) AS [AverageSalary] FROM [New employees Table]
+ GROUP BY DepartmentID
+
+-- Exercise 16
+  SELECT DepartmentID, MAX(Salary) AS [MaxSalary] 
+    FROM Employees
+GROUP BY DepartmentID
+  HAVING MAX(Salary) NOT BETWEEN 30000 AND 70000
+
+-- Exercise 17
+SELECT COUNT(Salary) AS [Count]
+  FROM Employees
+ WHERE ManagerID IS NULL
+
+-- Exercise 18
+SELECT DISTINCT DepartmentID, Salary AS [ThirdHighestSalary] 
+  FROM(
+		SELECT DepartmentID, Salary, DENSE_RANK() OVER (PARTITION BY DepartmentID ORDER BY Salary DESC) AS [Rank] FROM Employees
+      )
+    AS [Rank Table]
+WHERE [Rank] = 3
+
+-- Exercise 19
+SELECT TOP(10) e.FirstName, e.LastName, e.DepartmentID
+  FROM Employees AS e
+ WHERE e.Salary > (
+					SELECT AVG(Salary) FROM Employees AS m
+					WHERE m.DepartmentID = e.DepartmentID
+				)
+ORDER BY e.DepartmentID
