@@ -115,14 +115,17 @@ SELECT *
   INTO [New employees Table]
   FROM Employees
  WHERE Salary > 30000
+
 DELETE FROM [New employees Table]
- WHERE ManagerID = 42
+WHERE ManagerID = 42
+
 UPDATE [New employees Table]
    SET Salary += 5000
  WHERE DepartmentID = 1
 
- SELECT DepartmentID, AVG(Salary) AS [AverageSalary] FROM [New employees Table]
- GROUP BY DepartmentID
+  SELECT DepartmentID, AVG(Salary) AS [AverageSalary] 
+    FROM [New employees Table]
+GROUP BY DepartmentID
 
 -- Exercise 16
   SELECT DepartmentID, MAX(Salary) AS [MaxSalary] 
@@ -143,11 +146,19 @@ SELECT DISTINCT DepartmentID, Salary AS [ThirdHighestSalary]
     AS [Rank Table]
 WHERE [Rank] = 3
 
+SELECT DepartmentID, Salary AS [ThirdHighestSalary] FROM
+		(SELECT DepartmentID, Salary, DENSE_RANK() OVER (PARTITION BY DepartmentID ORDER BY Salary DESC) AS [Ranking]
+			FROM Employees
+			GROUP BY DepartmentID, Salary) AS [Rank Table]
+WHERE Ranking = 3
+
 -- Exercise 19
 SELECT TOP(10) e.FirstName, e.LastName, e.DepartmentID
   FROM Employees AS e
  WHERE e.Salary > (
-					SELECT AVG(Salary) FROM Employees AS m
+					SELECT AVG(Salary) 
+					FROM Employees AS m
 					WHERE m.DepartmentID = e.DepartmentID
+					GROUP BY DepartmentID
 				)
 ORDER BY e.DepartmentID
