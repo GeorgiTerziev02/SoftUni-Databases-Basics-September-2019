@@ -142,6 +142,84 @@ INSERT INTO Teachers (TeacherID, [Name], ManagerID) VALUES
 
 SELECT * FROM Teachers
 
+-- Exericse 5
+CREATE DATABASE [Online Store Database]
+USE [Online Store Database]
+
+CREATE TABLE Cities(
+	CityID INT PRIMARY KEY NOT NULL,
+	[Name] VARCHAR(50) NOT NULL
+)
+
+CREATE TABLE Customers(
+	CustomerID INT PRIMARY KEY NOT NULL,
+	[Name] VARCHAR(50) NOT NULL,
+	Birthday DATE NOT NULL,
+	CityID INT FOREIGN KEY REFERENCES Cities(CityID)
+)
+
+CREATE TABLE ItemTypes(
+	ItemTypeID INT PRIMARY KEY NOT NULL,
+	[Name] VARCHAR(50) NOT NULL
+)
+
+CREATE TABLE Items(
+	ItemID INT PRIMARY KEY NOT NULL,
+	[Name] VARCHAR(50) NOT NULL,
+	ItemTypeID INT FOREIGN KEY REFERENCES ItemTypes(ItemTypeID) NOT NULL
+)
+
+CREATE TABLE Orders(
+	OrderID INT PRIMARY KEY NOT NULL,
+	CustomerID INT FOREIGN KEY REFERENCES Customers(CustomerID) NOT NULL
+)
+
+CREATE TABLE OrderItems(
+	OrderID INT FOREIGN KEY REFERENCES Orders(OrderID) NOT NULL,
+	ItemID INT FOREIGN KEY REFERENCES Items(ItemID),
+	CONSTRAINT PK_OrderItems
+	PRIMARY KEY (OrderID, ItemID)	
+)
+
+DROP DATABASE [Online Store Database]
+
+-- Exercise 6
+CREATE DATABASE [University Database]
+USE [University Database]
+
+CREATE TABLE Majors(
+	MajorID INT PRIMARY KEY NOT NULL,
+	[Name] VARCHAR(50) NOT NULL
+)
+
+CREATE TABLE Subjects(
+	SubjectID INT PRIMARY KEY NOT NULL,
+	SubjectName VARCHAR(50) NOT NULL
+)
+
+CREATE TABLE Students(
+	StudentID INT PRIMARY KEY NOT NULL,
+	StudentNumber INT NOT NULL,
+	StudentName VARCHAR(200) NOT NULL,
+	MajorID INT FOREIGN KEY REFERENCES Majors(MajorID) NOT NULL
+)
+
+CREATE TABLE Agenda(
+	StudentID INT FOREIGN KEY REFERENCES Students(StudentID) NOT NULL,
+	SubjectID INT FOREIGN KEY REFERENCES Subjects(SubjectID) NOT NULL,
+	CONSTRAINT PK_Agenda
+	PRIMARY KEY(StudentID, SubjectID)
+)
+
+CREATE TABLE Payments(
+	PaymentID INT PRIMARY KEY NOT NULL,
+	PaymentDate DATE NOT NULL,
+	PaymentAmount DECIMAL(15, 2) NOT NULL,
+	StudentID INT FOREIGN KEY REFERENCES Students(StudentID) NOT NULL
+)
+
+DROP DATABASE [University Database]
+
 USE [Geography]
 -- Exercise 9
 SELECT m.MountainRange, p.PeakName, p.Elevation FROM Peaks AS p
