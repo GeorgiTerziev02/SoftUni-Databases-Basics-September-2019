@@ -54,6 +54,38 @@ SELECT * FROM Projects
    WHERE e.HireDate > '1/1/1999'
 ORDER BY e.HireDate
 
+-- Exercise 7
+  SELECT TOP(5) e.EmployeeID, e.FirstName, p.[Name] AS [ProjectName]
+    FROM Employees AS e
+    JOIN EmployeesProjects AS ep
+      ON e.EmployeeID = ep.EmployeeID
+    JOIN Projects AS p
+      ON p.ProjectID = ep.ProjectID
+   WHERE p.EndDate IS NULL AND p.StartDate > '2002-08-13'
+ORDER BY e.EmployeeID
+
+SELECT * FROM Projects
+
+-- Exercise 8
+SELECT e.EmployeeID,
+       e.FirstName, 
+	   CASE WHEN p.StartDate >= '2005-01-01' THEN NULL
+	   ELSE p.[Name]
+	   END AS [ProjectName]
+  FROM Employees AS e
+  JOIN EmployeesProjects AS ep
+    ON e.EmployeeID = ep.EmployeeID AND e.EmployeeID = 24
+  JOIN Projects AS p
+    ON p.ProjectID = ep.ProjectID
+
+-- Exercise 9
+  SELECT e1.EmployeeID, e1.FirstName, e1.ManagerID, e2.FirstName AS [ManagerName] 
+    FROM Employees AS e1
+    JOIN Employees AS e2
+      ON e1.ManagerID = e2.EmployeeID
+   WHERE e2.EmployeeID IN (3, 7)
+ORDER BY e1.EmployeeID
+
 -- Exercise 10
   SELECT TOP(50) e1.EmployeeID, 
          CONCAT(e1.FirstName, ' ', e1.LastName) AS [EmployeeName],
@@ -72,3 +104,59 @@ SELECT MIN(av.[AverageSalary]) AS [MinAverageSalary]
       SELECT AVG(e.Salary) AS [AverageSalary] 
 	    FROM Employees AS e
     GROUP BY DepartmentID ) AS av
+	
+USE [Geography]
+
+-- Exercise 12
+  SELECT mc.CountryCode, m.MountainRange, p.PeakName, p.Elevation 
+    FROM Peaks AS p
+    JOIN Mountains AS m
+      ON p.MountainId = m.Id
+    JOIN MountainsCountries AS mc
+      ON mc.MountainId = m.Id
+   WHERE mc.CountryCode = 'BG' AND p.Elevation > 2835
+ORDER BY p.Elevation DESC
+
+-- Exercise 13
+  SELECT CountryCode, COUNT(MountainId) AS [MountainRanges]
+    FROM MountainsCountries
+GROUP BY CountryCode
+  HAVING CountryCode IN ('BG', 'RU', 'US')
+
+-- Exercise 14
+   SELECT TOP(5) c.CountryName, r.RiverName 
+     FROM Countries AS c
+FULL JOIN CountriesRivers AS cr
+       ON c.CountryCode = cr.CountryCode
+FULL JOIN Rivers AS r
+       ON r.Id = cr.RiverId
+    WHERE c.ContinentCode = 'AF'
+ ORDER BY c.CountryName
+	 
+
+-- Exercise 16
+SELECT COUNT(*) FROM(
+   SELECT c.CountryName FROM Countries AS c
+LEFT JOIN MountainsCountries AS mc
+       ON c.CountryCode = mc.CountryCode
+	WHERE mc.MountainId IS NULL) AS dt
+
+-- Exercise 17
+   SELECT TOP(5) dt.CountryName, MAX(dt.Elevation), MAX(dt.[Length])
+     FROM(
+   SELECT c.CountryName, r.[Length], p.Elevation
+     FROM Countries c
+FULL JOIN MountainsCountries mc
+       ON c.CountryCode = mc.CountryCode
+FULL JOIN Mountains m
+       ON m.Id = mc.MountainId
+FULL JOIN Peaks p
+       ON p.MountainId = m.Id
+FULL JOIN CountriesRivers cr
+       ON cr.CountryCode = c.CountryCode
+FULL JOIN Rivers r
+       ON r.Id = cr.RiverId) AS dt
+ GROUP BY dt.CountryName
+ ORDER BY MAX(dt.Elevation) DESC, MAX(dt.[Length]) DESC, dt.CountryName
+
+-- Exercise 18
