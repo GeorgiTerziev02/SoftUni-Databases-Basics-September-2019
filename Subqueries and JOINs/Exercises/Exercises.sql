@@ -128,38 +128,72 @@ GROUP BY CountryCode
 -- Exercise 14
    SELECT TOP(5) c.CountryName, r.RiverName 
      FROM Countries AS c
-FULL JOIN CountriesRivers AS cr
+LEFT JOIN CountriesRivers AS cr
        ON c.CountryCode = cr.CountryCode
-FULL JOIN Rivers AS r
+LEFT JOIN Rivers AS r
        ON r.Id = cr.RiverId
     WHERE c.ContinentCode = 'AF'
  ORDER BY c.CountryName
 	 
 -- Exercise 15
+ SELECT dt.ContinentCode, dt.CurrencyCode, dt.CurrencyUsage 
+   FROM
+        (SELECT c.ContinentCode, 
+                c.CurrencyCode, 
+		        COUNT(c.CurrencyCode) AS [CurrencyUsage],
+		        DENSE_RANK() OVER (PARTITION BY c.ContinentCode ORDER BY COUNT(c.CurrencyCode) DESC) AS [Rank]
+           FROM Countries AS c
+       GROUP BY c.ContinentCode, c.CurrencyCode
+         HAVING COUNT(c.CurrencyCode) > 1) AS dt
+   WHERE dt.[Rank] = 1
+ORDER BY dt.ContinentCode
 
 -- Exercise 16
-SELECT COUNT(*) FROM(
-   SELECT c.CountryName FROM Countries AS c
+SELECT COUNT(*) 
+  FROM  (
+       SELECT c.CountryName FROM Countries AS c
+    LEFT JOIN MountainsCountries AS mc
+           ON c.CountryCode = mc.CountryCode
+	    WHERE mc.MountainId IS NULL) AS dt
+
+   SELECT COUNT(*)
+     FROM Countries AS c
 LEFT JOIN MountainsCountries AS mc
        ON c.CountryCode = mc.CountryCode
-	WHERE mc.MountainId IS NULL) AS dt
+	WHERE mc.MountainId IS NULL
 
 -- Exercise 17
-   SELECT TOP(5) dt.CountryName, MAX(dt.Elevation), MAX(dt.[Length])
+   SELECT TOP(5) dt.CountryName, MAX(dt.Elevation) AS [HighestPeakElevation], MAX(dt.[Length]) AS [LongestRiverLength]
      FROM(
    SELECT c.CountryName, r.[Length], p.Elevation
      FROM Countries c
-FULL JOIN MountainsCountries mc
+LEFT JOIN MountainsCountries mc
        ON c.CountryCode = mc.CountryCode
-FULL JOIN Mountains m
+LEFT JOIN Mountains m
        ON m.Id = mc.MountainId
-FULL JOIN Peaks p
+LEFT JOIN Peaks p
        ON p.MountainId = m.Id
-FULL JOIN CountriesRivers cr
+LEFT JOIN CountriesRivers cr
        ON cr.CountryCode = c.CountryCode
-FULL JOIN Rivers r
+LEFT JOIN Rivers r
        ON r.Id = cr.RiverId) AS dt
  GROUP BY dt.CountryName
  ORDER BY MAX(dt.Elevation) DESC, MAX(dt.[Length]) DESC, dt.CountryName
 
 -- Exercise 18
+SELECT TOP(5) dt.CountryName AS[Country],
+       IIF(dt.PeakName IS NULL, '(no highest peak)', dt.PeakName) AS [Highest Peak Name],
+	   ISNULL(dt.Elevation, 0) AS [Highest Peak Elevation],
+	   IIF(dt.MountainRange IS NULL, '(no mountain)', dt.MountainRange) AS [Mountain]
+  FROM
+       (SELECT c.CountryName,
+               p.PeakName,
+	           p.Elevation,
+	           m.MountainRange,
+		       DENSE_RANK() OVER (PARTITION BY c.CountryName ORDER BY p.Elevation DESC) AS [Ranking]
+          FROM Countries c
+     LEFT JOIN MountainsCountries AS mc ON mc.CountryCode = c.CountryCode
+     LEFT JOIN Mountains AS m ON m.Id = mc.MountainId
+     LEFT JOIN Peaks AS p ON p.MountainId = m.Id) AS dt
+   WHERE dt.Ranking = 1
+ORDER BY dt.CountryName, dt.PeakName
