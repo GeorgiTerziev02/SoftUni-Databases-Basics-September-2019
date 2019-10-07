@@ -78,6 +78,8 @@ SELECT e.EmployeeID,
   JOIN Projects AS p
     ON p.ProjectID = ep.ProjectID
 
+-- instead of case when  IIF(p.StartDate >= '2005-01-01', NULL, p.[Name]) AS [ProjectName]
+
 -- Exercise 9
   SELECT e1.EmployeeID, e1.FirstName, e1.ManagerID, e2.FirstName AS [ManagerName] 
     FROM Employees AS e1
@@ -133,6 +135,7 @@ FULL JOIN Rivers AS r
     WHERE c.ContinentCode = 'AF'
  ORDER BY c.CountryName
 	 
+-- Exercise 15
 
 -- Exercise 16
 SELECT COUNT(*) FROM(
