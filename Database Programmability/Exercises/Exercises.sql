@@ -161,27 +161,78 @@ BEGIN
 			
 END
 
-
--- Exercise ??j
-CREATE PROCEDURE usp_InsertProject(@employeeId INT, @projectId INT)
+USE [Bank]
+-- Exercise 9
+CREATE PROCEDURE usp_GetHoldersFullName 
 AS
 BEGIN
-	DECLARE @totalProject INT
-	SET @totalProject = 
-	(
-	 SELECT COUNT(*) 
-	   FROM EmployeesProjects ep
-	  WHERE ep.EmployeeID = @employeeId
-	)
-
-	IF(@totalProject > 3)
-	BEGIN
-		THROW 50001, 'Employees cannot have more than 3 projects', 1
-	END
-
-	INSERT INTO EmployeesProjects (EmployeeID, ProjectID) VALUES (@employeeId, @projectId)
+	SELECT CONCAT(FirstName, ' ', LastName) AS [Full Name] 
+	  FROM AccountHolders
 END
 
-GO
+EXEC usp_GetHoldersFullName
 
-EXEC usp_InsertProject 28, 3
+-- Exercise 10
+CREATE PROCEDURE usp_GetHoldersWithBalanceHigherThan (@number DECIMAL(15, 2))
+AS
+BEGIN
+	SELECT ah.FirstName, ah.LastName
+	  FROM(
+		SELECT a.AccountHolderId, SUM(a.Balance) AS [Balance]
+	   	  FROM Accounts a
+		GROUP BY a.AccountHolderId
+		  HAVING SUM(a.Balance) > @number	
+		) AS dt
+	  JOIN AccountHolders AS ah ON dt.AccountHolderId = ah.Id
+	ORDER BY ah.FirstName, ah.LastName
+END
+
+-- works too
+
+--CREATE PROCEDURE usp_GetHoldersWithBalanceHigherThan (@number DECIMAL(15,2))
+--AS
+--BEGIN
+--	SELECT ah.FirstName, ah.LastName
+--	  FROM Accounts a 
+--	  JOIN AccountHolders AS ah ON a.AccountHolderId = ah.Id
+--  GROUP BY ah.FirstName, ah.LastName
+--	HAVING SUM(a.Balance) > @number
+--  ORDER BY ah.FirstName, ah.LastName
+--END
+
+EXEC dbo.usp_GetHoldersWithBalanceHigherThan 5000000
+
+-- Exercise 11
+CREATE FUNCTION ufn_CalculateFutureValue (@sum DECIMAL(15, 2), @yearlyInterestRate FLOAT, @numberOfYears INT)
+RETURNS DECIMAL(15,4)
+AS
+BEGIN
+	DECLARE @futureValue DECIMAL(15,4)
+	SET @futureValue = @sum * POWER((1 + @yearlyInterestRate), @numberOfYears)
+	RETURN @futureValue
+END
+
+SELECT dbo.ufn_CalculateFutureValue(1000, 0.1, 5)
+
+-- Exercises 12
+CREATE PROCEDURE usp_CalculateFutureValueForAccount (@accountId INT, @interest FLOAT)
+AS
+BEGIN
+	DECLARE @years INT = 5
+
+	SELECT a.Id, ah.FirstName, ah.LastName, a.Balance AS [Current Balance], dbo.ufn_CalculateFutureValue(a.Balance, @interest ,5) AS [Balance in 5 years]
+	  FROM Accounts a
+	  JOIN AccountHolders ah ON a.AccountHolderId = ah.Id
+	 WHERE a.Id = @accountId
+END
+
+EXEC usp_CalculateFutureValueForAccount 1, 0.1
+
+USE [Diablo]
+-- Exercise 13
+CREATE FUNCTION ufn_CashInUsersGames (@game NVARCHAR(100))
+RETURNS TABLE
+AS
+BEGIN
+	
+END

@@ -73,3 +73,26 @@ BEGIN CATCH
         ,ERROR_MESSAGE() AS ErrorMessage;  
 END CATCH  
 GO
+
+CREATE PROCEDURE usp_InsertProject(@employeeId INT, @projectId INT)
+AS
+BEGIN
+	DECLARE @totalProject INT
+	SET @totalProject = 
+	(
+	 SELECT COUNT(*) 
+	   FROM EmployeesProjects ep
+	  WHERE ep.EmployeeID = @employeeId
+	)
+
+	IF(@totalProject > 3)
+	BEGIN
+		THROW 50001, 'Employees cannot have more than 3 projects', 1
+	END
+
+	INSERT INTO EmployeesProjects (EmployeeID, ProjectID) VALUES (@employeeId, @projectId)
+END
+
+GO
+
+EXEC usp_InsertProject 28, 3
