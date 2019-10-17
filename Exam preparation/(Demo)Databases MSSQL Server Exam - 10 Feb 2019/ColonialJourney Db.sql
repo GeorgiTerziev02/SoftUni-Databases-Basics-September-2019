@@ -127,3 +127,63 @@ ORDER BY s.[Name]
     JOIN Journeys j ON j.DestinationSpaceportId = sp.Id
    WHERE j.Purpose = 'Educational'
 ORDER BY sp.[Name] DESC
+
+-- Exercise 13
+  SELECT p.[Name], COUNT(j.Id) AS [JourneysCount] 
+    FROM Planets p
+    JOIN Spaceports sp ON p.Id = sp.PlanetId
+    JOIN Journeys j ON j.DestinationSpaceportId = sp.Id
+GROUP BY p.[Name]
+ORDER BY JourneysCount DESC, p.[Name] 
+
+-- Exercise 14
+SELECT TOP(1) dt.Id, p.[Name] AS [Planet Name], sp.[Name] AS [SpaceportName], dt.Purpose AS [JourneyPurpose]
+  FROM (
+		SELECT j.Id, j.Purpose, DATEDIFF(SECOND, j.JourneyStart, j.JourneyEnd) AS [Length], j.DestinationSpaceportId
+		FROM Journeys j
+		) AS dt
+ JOIN Spaceports sp ON sp.Id = dt.DestinationSpaceportId
+ JOIN Planets p ON p.Id = sp.PlanetId
+ORDER BY dt.[Length]
+
+-- Exercise 15
+SELECT TOP(1) tc.JourneyId, tc.JobDuringJourney
+  FROM TravelCards tc
+ WHERE tc.JourneyId = (SELECT TOP(1) Id FROM Journeys ORDER BY DATEDIFF(SECOND, JourneyStart, JourneyEnd) DESC)
+GROUP BY tc.JourneyId, tc.JobDuringJourney
+ORDER BY COUNT(tc.JobDuringJourney)
+
+-- exercise 16 - not clear task????
+
+-- Exercise 17
+    SELECT p.[Name], COUNT(sp.Id)
+      FROM Spaceports sp
+RIGHT JOIN Planets p ON sp.PlanetId = p.Id
+  GROUP BY p.Id, p.[Name]
+  ORDER BY COUNT(sp.Id) DESC, p.[Name]
+
+-- Exercise 18
+CREATE FUNCTION udf_GetColonistsCount(@PlanetName VARCHAR (30))
+RETURNS INT
+AS
+BEGIN
+	RETURN(
+	SELECT COUNT(*)
+	  FROM Planets p
+	  JOIN Spaceports sp ON sp.PlanetId = p.Id
+	  JOIN Journeys j ON j.DestinationSpaceportId = sp.Id
+	  JOIN TravelCards tc ON tc.JourneyId = j.Id
+	 WHERE p.[Name] = @PlanetName)
+
+END 
+
+SELECT dbo.udf_GetColonistsCount('Otroyphus')
+
+-- Exercise 19
+CREATE PROCEDURE usp_ChangeJourneyPurpose(@JourneyId INT, @NewPurpose VARCHAR(50))
+AS
+BEGIN
+
+
+
+END 
