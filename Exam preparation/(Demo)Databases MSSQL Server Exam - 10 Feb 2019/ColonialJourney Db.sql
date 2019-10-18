@@ -153,7 +153,15 @@ SELECT TOP(1) tc.JourneyId, tc.JobDuringJourney
 GROUP BY tc.JourneyId, tc.JobDuringJourney
 ORDER BY COUNT(tc.JobDuringJourney)
 
--- exercise 16 - not clear task????
+-- Exercise 16 - not clear task????
+SELECT k.JobDuringJourney, CONCAT(c.FirstName, ' ', c.LastName) AS [FullName], k.JobRank FROM
+	(
+	SELECT tc.JobDuringJourney , tc.ColonistId, DENSE_RANK() OVER (PARTITION BY tc.JobDuringJourney ORDER BY c.BirthDate ASC) AS [JobRank]
+	FROM TravelCards tc
+	JOIN Colonists c ON tc.ColonistId = c.Id) 
+    AS k
+  JOIN Colonists c ON k.ColonistId = c.Id
+ WHERE k.[JobRank] = 2
 
 -- Exercise 17
     SELECT p.[Name], COUNT(sp.Id)
@@ -183,7 +191,55 @@ SELECT dbo.udf_GetColonistsCount('Otroyphus')
 CREATE PROCEDURE usp_ChangeJourneyPurpose(@JourneyId INT, @NewPurpose VARCHAR(50))
 AS
 BEGIN
+	DECLARE @journeyPurpose VARCHAR(50) = (SELECT Purpose FROM Journeys WHERE id = @JourneyId)
 
+	IF(@journeyPurpose IS NULL)
+	BEGIN
+		RAISERROR ('The journey does not exist!', 16, 2)
+		RETURN
+	END
 
+	IF(@journeyPurpose = @NewPurpose)
+	BEGIN
+		RAISERROR ('You cannot change the purpose!', 16, 2)
+		RETURN
+	END
+
+	UPDATE Journeys
+	SET Purpose = @NewPurpose
+	WHERE Id = @JourneyId
 
 END 
+
+EXEC usp_ChangeJourneyPurpose 2, 'Educational'
+EXEC usp_ChangeJourneyPurpose 196, 'Technical'
+
+EXEC usp_ChangeJourneyPurpose 1, 'Technical'
+SELECT * FROM Journeys
+
+-- Exercise 20
+CREATE TABLE DeletedJourneys
+(
+	Id INT,
+	JourneyStart DATETIME,
+	JourneyEnd DATETIME,
+	Purpose VARCHAR(11),
+	DestinationSpaceportId INT,
+	SpaceshipId INT
+)
+
+CREATE TRIGGER t_Deleted
+ON Journeys
+AFTER DELETE
+AS
+BEGIN
+	INSERT INTO DeletedJourneys (Id,JourneyStart,JourneyEnd,Purpose,DestinationSpaceportId,SpaceshipId)
+		SELECT Id,JourneyStart,JourneyEnd,Purpose,DestinationSpaceportId,SpaceshipId FROM deleted
+END
+
+
+DELETE FROM TravelCards
+WHERE JourneyId =  1
+
+DELETE FROM Journeys
+WHERE Id =  1
