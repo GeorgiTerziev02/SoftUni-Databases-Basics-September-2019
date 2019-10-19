@@ -58,8 +58,23 @@ WHERE dt.[Rank] = 1
 ORDER BY dt.[SubjectName], dt.[Teacher Full Name], dt.Average DESC
 
 -- Exercise 17
-
-
+SELECT dt.[Quarter], dt.[Name], COUNT(dt.StudentId) AS [StudentsCount]
+  FROM
+(SELECT s.[Name],
+	   se.StudentId, 
+     CASE
+		 WHEN DATEPART(MONTH, Date) BETWEEN 1 AND 3 THEN 'Q1'
+		 WHEN DATEPART(MONTH, Date) BETWEEN 4 AND 6 THEN 'Q2'
+		 WHEN DATEPART(MONTH, Date) BETWEEN 7 AND 9 THEN 'Q3'
+		 WHEN DATEPART(MONTH, Date) BETWEEN 10 AND 12 THEN 'Q4'
+		 WHEN Date IS NULL THEN 'TBA'
+		 END AS [Quarter] 
+  FROM Exams e
+  JOIN Subjects s ON s.Id = e.SubjectId
+  JOIN StudentsExams se ON e.Id = se.ExamId
+ WHERE se.Grade >= 4.00) AS dt
+GROUP BY dt.[Name], dt.[Quarter]
+ORDER BY dt.[Quarter]
 -- Exercise 20
 CREATE TABLE ExcludedStudents(
 	StudentId INT,
